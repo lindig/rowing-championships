@@ -22,7 +22,7 @@ $ make
 ```
 
 If you don't have Make available, you can also load `world-cup.sql` into
-an Sqlite3 datbase and to create the database from the CSV files in this
+an Sqlite3 datbase to create the database from the CSV files in this
 repository.
 
 ## Example
