@@ -25,7 +25,9 @@ If you don't have Make available, you can also load `world-cup.sql` into
 an Sqlite3 datbase to create the database from the CSV files in this
 repository.
 
-## Example
+## Examples
+
+### Fastest Races in a Year
 
 Find the fastest races in selected boat classes for every year:
 
@@ -78,6 +80,84 @@ year  class  time    team  descr
 2013  W8+    362.14  USA   WCH Chungju, Korea         
 2011  W8+    363.65  USA   WCH Bled, Slovenia         
 2017  W8+    366.4   ROU   WCH Sarasota-Bradenton, USA
+```
+
+### Speed Difference between Light and Open Weight
+
+Compare the fastest race for a boat class in a year between light-weight
+and open-weight crews.
+
+```sql
+select
+  A.year,
+  A.class,
+  B.class,
+  printf( "%5.2f", (B.time / A.time - 1.0) * 100) as percent
+from
+  (
+    select
+      year,
+      class,
+      min(time_2000m) as time
+    from
+      race
+    where
+      class in ("M4x", "W4x", "M1x", "W1x")
+    group by
+      year,
+      class
+  ) as A
+  join (
+    select
+      year,
+      class,
+      min(time_2000m) as time
+    from
+      race
+    where
+      class in ("LM4x", "LW4x", "LM1x", "LW1x")
+    group by
+      year,
+      class
+  ) as B
+where
+  A.year = B.year
+  and "L" || A.class = B.class
+order by
+  A.class,
+  percent
+```
+
+```
+year  class  class  percent
+----  -----  -----  -------
+2014  M1x    LM1x    1.57
+2017  M1x    LM1x    2.05
+2015  M1x    LM1x    2.15
+2013  M1x    LM1x    2.81
+2011  M1x    LM1x    3.79
+2010  M1x    LM1x    4.46
+
+2015  M4x    LM4x    1.51
+2017  M4x    LM4x    2.55
+2014  M4x    LM4x    3.16
+2013  M4x    LM4x    4.22
+2010  M4x    LM4x    4.58
+2011  M4x    LM4x    5.50
+
+2013  W1x    LW1x    1.20
+2015  W1x    LW1x    2.06
+2017  W1x    LW1x    3.66
+2014  W1x    LW1x    3.76
+2010  W1x    LW1x    3.85
+2011  W1x    LW1x    4.27
+
+2014  W4x    LW4x    2.48
+2013  W4x    LW4x    2.56
+2011  W4x    LW4x    2.58
+2015  W4x    LW4x    2.63
+2017  W4x    LW4x    4.58
+2010  W4x    LW4x    5.23
 ```
 
 ## Structure
